@@ -5,7 +5,7 @@ struct PopupMenu
 	PopupMenu();
 	void ShowMenu(HWND window, int x, int y);
 	void AppendMenuItem(std::wstring const& name, std::function<void()> callback);
-	LRESULT MessageHandler(WPARAM const wparam, LPARAM const lparam);
+	std::optional<LRESULT> MessageHandler(WPARAM const wparam, LPARAM const lparam);
 
 private:
 	struct MenuItem

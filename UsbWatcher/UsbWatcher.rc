@@ -65,6 +65,34 @@ BEGIN
     "C",            ID_COPY_CMD,            VIRTKEY, CONTROL, NOINVERT
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAIN_WINDOW_MENU MENU
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Minimize to Tray",            ID_FILE_MINIMIZETOTRAY
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Copy",                        ID_EDIT_COPY
+        MENUITEM "Clear",                       ID_EDIT_CLEAR
+    END
+    POPUP "Tools"
+    BEGIN
+        MENUITEM "Export to CSV",               ID_TOOLS_EXPORTTOCSV
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About",                       ID_HELP_ABOUT
+    END
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 

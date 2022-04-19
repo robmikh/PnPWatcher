@@ -7,6 +7,7 @@ namespace winrt
     using namespace Windows::Foundation;
     using namespace Windows::Globalization::DateTimeFormatting;
     using namespace Windows::System;
+    using namespace Windows::UI::Popups;
 }
 
 const std::wstring MainWindow::ClassName = L"UsbWatcher.MainWindow";
@@ -59,6 +60,8 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
 
     CreateTrayIconMenu();
     CreateListViewItemMenu();
+    m_mainMenu.reset(winrt::check_pointer(LoadMenuW(instance, MAKEINTRESOURCEW(IDR_MAIN_WINDOW_MENU))));
+    winrt::check_bool(SetMenu(m_window, m_mainMenu.get()));
     CreateControls(instance);
 
     m_usbEventWatcher = std::make_unique<UsbEventWatcher>(
@@ -110,7 +113,11 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
     }
         break;
     case WM_MENUCOMMAND:
-        return m_trayIconMenu->MessageHandler(wparam, lparam);
+        if (auto result = m_trayIconMenu->MessageHandler(wparam, lparam))
+        {
+            return result.value();
+        }
+        break;
     case WM_NOTIFY:
         OnListViewNotify(lparam);
         break;
@@ -121,7 +128,9 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
     {
         switch (LOWORD(wparam))
         {
+        case ID_EDIT_COPY:
         case ID_COPY_CMD:
+        {
             auto index = ListView_GetSelectionMark(m_usbEventsListView);
             if (index >= 0)
             {
@@ -130,6 +139,25 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
                 WriteUsbEventData(stream, usbEvent);
                 CopyStringToClipboard(stream.str());
             }
+        }
+            break;
+        case ID_FILE_MINIMIZETOTRAY:
+            IsVisible(false);
+            break;
+        case ID_FILE_EXIT:
+            PostQuitMessage(0);
+            break;
+        case ID_EDIT_CLEAR:
+        {
+            m_usbEvents.Clear();
+            ListView_DeleteAllItems(m_usbEventsListView);
+        }
+            break;
+        case ID_TOOLS_EXPORTTOCSV:
+            // TODO
+            break;
+        case ID_HELP_ABOUT:
+            ShowAbout();
             break;
         }
     }
@@ -364,4 +392,21 @@ void MainWindow::CopyStringToClipboard(std::wstring const& string)
     dataPackage.RequestedOperation(winrt::DataPackageOperation::Copy);
     dataPackage.SetText(string);
     winrt::Clipboard::SetContent(dataPackage);
+}
+
+winrt::fire_and_forget MainWindow::ShowAbout()
+{
+    auto dialog = winrt::MessageDialog(L"UsbWatcher is an open source application written by Robert Mikhayelyan", L"About");
+    auto commands = dialog.Commands();
+    commands.Append(winrt::UICommand(L"Open GitHub", [](auto&) -> winrt::fire_and_forget
+        {
+            co_await winrt::Launcher::LaunchUriAsync(winrt::Uri(L"https://github.com/robmikh/UsbWatcher"));
+        }));
+    commands.Append(winrt::UICommand(L"Close"));
+
+    dialog.DefaultCommandIndex(1);
+    dialog.CancelCommandIndex(1);
+
+    InitializeObjectWithWindowHandle(dialog);
+    co_await dialog.ShowAsync();
 }

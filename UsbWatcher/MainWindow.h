@@ -36,6 +36,7 @@ private:
 	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column);
 	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent);
 	void CopyStringToClipboard(std::wstring const& string);
+	winrt::fire_and_forget ShowAbout();
 
 private:
 	bool m_isVisible = false;
@@ -47,4 +48,5 @@ private:
 	winrt::Windows::System::DispatcherQueue m_dispatcherQueue{ nullptr };
 	winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter m_timestampFormatter{ nullptr };
 	std::unique_ptr<SyncPopupMenu<ListViewItemMenuItem>> m_eventItemMenu;
+	wil::unique_hmenu m_mainMenu;
 };

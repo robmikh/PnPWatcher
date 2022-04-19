@@ -29,7 +29,7 @@ void PopupMenu::AppendMenuItem(std::wstring const& name, std::function<void()> c
     winrt::check_bool(AppendMenuW(m_menu.get(), MF_STRING, id, name.c_str()));
 }
 
-LRESULT PopupMenu::MessageHandler(WPARAM const wparam, LPARAM const lparam)
+std::optional<LRESULT> PopupMenu::MessageHandler(WPARAM const wparam, LPARAM const lparam)
 {
     auto menu = reinterpret_cast<HMENU>(lparam);
     auto index = static_cast<int>(wparam);
@@ -37,6 +37,10 @@ LRESULT PopupMenu::MessageHandler(WPARAM const wparam, LPARAM const lparam)
     {
         const auto& menuItem = m_menuItems[index];
         menuItem.Callback();
+        return std::optional(0);
     }
-    return 0;
+    else
+    {
+        return std::nullopt;
+    }
 }
