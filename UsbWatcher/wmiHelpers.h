@@ -42,6 +42,13 @@ inline uint64_t GetProperty(winrt::com_ptr<IWbemClassObject> const& obj, std::ws
     return variant.ullVal;
 }
 
+template<>
+inline std::wstring GetProperty(winrt::com_ptr<IWbemClassObject> const& obj, std::wstring_view const& propertyName)
+{
+    auto bstr = GetProperty<wil::unique_bstr>(obj, propertyName);
+    return std::wstring(bstr.get(), SysStringLen(bstr.get()));
+}
+
 struct EventSink : winrt::implements<EventSink, IWbemObjectSink>
 {
     using EventSinkCallback = std::function<void(winrt::array_view<IWbemClassObject*> const&)>;

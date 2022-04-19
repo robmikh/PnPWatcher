@@ -47,14 +47,22 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
 
                 if (usbEventType.has_value())
                 {
+                    // The docs (https://docs.microsoft.com/en-us/windows/win32/wmisdk/--instancecreationevent)
+                    // claim that this property is a uint64... but the variant we get back is a BSTR. To make
+                    // things even stranger, if we interpret the value as a uint64 the value isn't nearly high
+                    // enough. But if we interpret it as a BSTR and parse the BSTR to a uint64... the value is
+                    // correct. Not sure why this is the case...
+                    //auto eventTime = GetProperty<uint64_t>(obj, L"TIME_CREATED");
+                    auto eventTimeString = GetProperty<std::wstring>(obj, L"TIME_CREATED");
+                    auto eventTime = std::stoull(eventTimeString);
+
                     auto targetInstance = GetProperty<winrt::com_ptr<IUnknown>>(obj, L"TargetInstance");
-                    auto eventTime = GetProperty<uint64_t>(obj, L"TIME_CREATED");
                     auto usbDevice = targetInstance.as<IWbemClassObject>();
 
                     auto type = usbEventType.value();
-                    auto name = GetProperty<wil::unique_bstr>(usbDevice, L"Name");
-                    auto description = GetProperty<wil::unique_bstr>(usbDevice, L"Description");
-                    auto deviceId = GetProperty<wil::unique_bstr>(usbDevice, L"DeviceId");
+                    auto name = GetProperty<std::wstring>(usbDevice, L"Name");
+                    auto description = GetProperty<std::wstring>(usbDevice, L"Description");
+                    auto deviceId = GetProperty<std::wstring>(usbDevice, L"DeviceId");
                     auto fileTime = winrt::file_time(eventTime);
                     auto timestamp = winrt::clock::from_file_time(fileTime);
 
@@ -62,9 +70,9 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
                     UsbEvent usbEvent =
                     {
                         type,
-                        std::wstring(name.get(), SysStringLen(name.get())),
-                        std::wstring(description.get(), SysStringLen(description.get())),
-                        std::wstring(deviceId.get(), SysStringLen(deviceId.get())),
+                        name,
+                        description,
+                        deviceId,
                         timestamp,
                     };
                     m_dispatcherQueue.TryEnqueue([usbEvent, callback]()
