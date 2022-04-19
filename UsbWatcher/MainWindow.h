@@ -25,6 +25,7 @@ private:
 		CopyTimestamp,
 	};
 
+	static const std::wstring CopyDelim;
 	static void RegisterWindowClass();
 	void CreateTrayIconMenu();
 	void CreateListViewItemMenu();
@@ -34,9 +35,10 @@ private:
 	void OnUsbEventAdded(UsbEvent usbEvent);
 	void OnListViewNotify(LPARAM const lparam);
 	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column);
-	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent);
+	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, std::wstring const& delim);
 	void CopyStringToClipboard(std::wstring const& string);
 	winrt::fire_and_forget ShowAbout();
+	winrt::Windows::Foundation::IAsyncAction ExportToCsvAsync();
 
 private:
 	bool m_isVisible = false;

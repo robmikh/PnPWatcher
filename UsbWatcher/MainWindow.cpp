@@ -6,11 +6,15 @@ namespace winrt
     using namespace Windows::ApplicationModel::DataTransfer;
     using namespace Windows::Foundation;
     using namespace Windows::Globalization::DateTimeFormatting;
+    using namespace Windows::Storage;
+    using namespace Windows::Storage::Pickers;
+    using namespace Windows::Storage::Streams;
     using namespace Windows::System;
     using namespace Windows::UI::Popups;
 }
 
 const std::wstring MainWindow::ClassName = L"UsbWatcher.MainWindow";
+const std::wstring MainWindow::CopyDelim = L"  |  ";
 std::once_flag MainWindowClassRegistration;
 
 #define ID_LISTVIEW  2000 // ?????
@@ -136,7 +140,7 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
             {
                 const auto& usbEvent = m_usbEvents[index];
                 std::wstringstream stream;
-                WriteUsbEventData(stream, usbEvent);
+                WriteUsbEventData(stream, usbEvent, CopyDelim);
                 CopyStringToClipboard(stream.str());
             }
         }
@@ -154,7 +158,7 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
         }
             break;
         case ID_TOOLS_EXPORTTOCSV:
-            // TODO
+            ExportToCsvAsync();
             break;
         case ID_HELP_ABOUT:
             ShowAbout();
@@ -350,7 +354,7 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
                 switch (result.value())
                 {
                 case ListViewItemMenuItem::Copy:
-                    WriteUsbEventData(stream, usbEvent);
+                    WriteUsbEventData(stream, usbEvent, CopyDelim);
                     break;
                 case ListViewItemMenuItem::CopyName:
                     WriteUsbEventData(stream, usbEvent, UsbEventColumn::Name);
@@ -373,7 +377,7 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
     }
 }
 
-void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent)
+void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, std::wstring const& delim)
 {
     for (auto i = 0; i < m_columns.size(); i++)
     {
@@ -381,7 +385,7 @@ void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEve
         WriteUsbEventData(stream, usbEvent, column);
         if (i != m_columns.size() - 1)
         {
-            stream << L"  |  ";
+            stream << delim;
         }
     }
 }
@@ -409,4 +413,43 @@ winrt::fire_and_forget MainWindow::ShowAbout()
 
     InitializeObjectWithWindowHandle(dialog);
     co_await dialog.ShowAsync();
+}
+
+winrt::IAsyncAction MainWindow::ExportToCsvAsync()
+{
+    // Write our data to a string
+    std::wstringstream sstream;
+    for (auto i = 0; i < m_columns.size(); i++)
+    {
+        const auto& column = m_columns[i];
+        sstream << column;
+        if (i != m_columns.size() - 1)
+        {
+            sstream << L",";
+        }
+    }
+    sstream << std::endl;
+    for (auto i = 0; i < m_usbEvents.Size(); i++)
+    {
+        const auto& usbEvent = m_usbEvents[i];
+        WriteUsbEventData(sstream, usbEvent, L",");
+        sstream << std::endl;
+    }
+    auto text = sstream.str();
+
+    auto picker = winrt::FileSavePicker();
+    InitializeObjectWithWindowHandle(picker);
+    picker.SuggestedStartLocation(winrt::PickerLocationId::PicturesLibrary);
+    picker.SuggestedFileName(L"usbEvents");
+    picker.DefaultFileExtension(L".csv");
+    picker.FileTypeChoices().Clear();
+    picker.FileTypeChoices().Insert(L"CSV Data", winrt::single_threaded_vector<winrt::hstring>({ L".csv" }));
+    auto file = co_await picker.PickSaveFileAsync();
+    if (file != nullptr)
+    {
+        co_await winrt::FileIO::WriteTextAsync(file, text, winrt::UnicodeEncoding::Utf8);
+
+        co_await m_dispatcherQueue;
+        MessageBoxW(m_window, L"Export completed!", L"UsbWatcher", MB_OK | MB_APPLMODAL);
+    }
 }

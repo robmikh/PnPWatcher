@@ -16,6 +16,9 @@
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
+#include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Storage.Pickers.h>
 
 // WIL
 #include <wil/resource.h>
