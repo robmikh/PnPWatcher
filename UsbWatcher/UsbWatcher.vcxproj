@@ -133,9 +133,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="PopupMenu.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />

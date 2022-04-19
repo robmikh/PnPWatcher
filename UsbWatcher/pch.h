@@ -39,6 +39,7 @@
 #include <memory>
 #include <algorithm>
 #include <mutex>
+#include <functional>
 
 // robmikh.common
 #include <robmikh.common/composition.interop.h>

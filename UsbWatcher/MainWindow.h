@@ -1,5 +1,6 @@
 #pragma once
 #include <robmikh.common/DesktopWindow.h>
+#include "PopupMenu.h"
 
 struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
 {
@@ -14,9 +15,9 @@ struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
 private:
 	static void RegisterWindowClass();
 	void CreateTrayIconMenu();
-	void ShowTrayIconMenu(int x, int y);
+	void OnOpenMenuItemClicked();
 
 private:
 	bool m_isVisible = false;
-	wil::unique_hmenu m_trayIconMenu;
+	std::unique_ptr<PopupMenu> m_trayIconMenu;
 };

@@ -53,29 +53,13 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
         switch (iconMessage)
         {
         case WM_CONTEXTMENU:
-            ShowTrayIconMenu(x, y);
+            m_trayIconMenu->ShowMenu(m_window, x, y);
             break;
         }
     }
         break;
     case WM_MENUCOMMAND:
-    {
-        auto menu = reinterpret_cast<HMENU>(lparam);
-        auto index = static_cast<int>(wparam);
-        if (menu == m_trayIconMenu.get())
-        {
-            switch (index)
-            {
-            case 0:
-                IsVisible(true);
-                break;
-            case 1:
-                PostQuitMessage(0);
-                break;
-            }
-        }
-    }
-        break;
+        return m_trayIconMenu->MessageHandler(wparam, lparam);
     default:
         return base_type::MessageHandler(message, wparam, lparam);
     }
@@ -95,23 +79,12 @@ void MainWindow::IsVisible(bool value)
 
 void MainWindow::CreateTrayIconMenu()
 {
-    m_trayIconMenu.reset(winrt::check_pointer(CreatePopupMenu()));
-    winrt::check_bool(AppendMenuW(m_trayIconMenu.get(), MF_STRING, 0, L"Open"));
-    winrt::check_bool(AppendMenuW(m_trayIconMenu.get(), MF_STRING, 1, L"Exit"));
-    MENUINFO menuInfo = {};
-    menuInfo.cbSize = sizeof(menuInfo);
-    menuInfo.fMask = MIM_STYLE;
-    menuInfo.dwStyle = MNS_NOTIFYBYPOS;
-    winrt::check_bool(SetMenuInfo(m_trayIconMenu.get(), &menuInfo));
+    m_trayIconMenu = std::make_unique<PopupMenu>();
+    m_trayIconMenu->AppendMenuItem(L"Open", std::bind(&MainWindow::OnOpenMenuItemClicked, this));
+    m_trayIconMenu->AppendMenuItem(L"Exit", []() { PostQuitMessage(0); });
 }
 
-void MainWindow::ShowTrayIconMenu(int x, int y)
+void MainWindow::OnOpenMenuItemClicked()
 {
-    winrt::check_bool(TrackPopupMenuEx(
-        m_trayIconMenu.get(),
-        TPM_LEFTALIGN | TPM_BOTTOMALIGN,
-        x,
-        y,
-        m_window,
-        nullptr));
+    IsVisible(true);
 }

@@ -8,12 +8,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="PopupMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />
+    <ClInclude Include="PopupMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UsbWatcher.rc" />
