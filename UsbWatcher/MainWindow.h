@@ -13,7 +13,10 @@ struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
 
 private:
 	static void RegisterWindowClass();
+	void CreateTrayIconMenu();
+	void ShowTrayIconMenu(int x, int y);
 
 private:
 	bool m_isVisible = false;
+	wil::unique_hmenu m_trayIconMenu;
 };

@@ -2,6 +2,7 @@
 
 // Windows
 #include <windows.h>
+#include <windowsx.h>
 
 // Must come before C++/WinRT
 #include <wil/cppwinrt.h>

@@ -5,6 +5,7 @@ struct TrayIcon
 public:
     TrayIcon(HWND window, uint32_t message, uint32_t id, std::wstring const& tip)
     {
+        m_window = window;
         m_id = id;
         RegisterTrayIcon(window, message, id, tip);
     }
@@ -34,10 +35,12 @@ private:
     {
         NOTIFYICONDATAW trayIconDesc = {};
         trayIconDesc.cbSize = sizeof(trayIconDesc);
+        trayIconDesc.hWnd = m_window;
         trayIconDesc.uID = id;
         winrt::check_bool(Shell_NotifyIconW(NIM_DELETE, &trayIconDesc));
     }
 
 private:
+    HWND m_window = nullptr;
     uint32_t m_id = 0;
 };

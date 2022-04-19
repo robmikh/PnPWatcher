@@ -5,9 +5,6 @@
 namespace winrt
 {
     using namespace Windows::Foundation;
-    using namespace Windows::Foundation::Numerics;
-    using namespace Windows::UI;
-    using namespace Windows::UI::Composition;
 }
 
 namespace util
