@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "MainWindow.h"
+#include "TrayIcon.h"
 
 namespace winrt
 {
@@ -24,6 +25,9 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     // Create our window
     auto window = MainWindow(L"UsbWatcher", 800, 600);
+
+    // Create a tray icon
+    auto trayIcon = TrayIcon(window.m_window, MainWindow::TrayIconMessage, 0, L"UsbWatcher");
 
     // Message pump
     MSG msg;

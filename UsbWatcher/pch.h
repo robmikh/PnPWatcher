@@ -28,6 +28,9 @@
 #include <d2d1_3.h>
 #include <wincodec.h>
 
+// Shell
+#include <shellapi.h>
+
 // STL
 #include <vector>
 #include <string>
@@ -47,3 +50,7 @@
 #include <robmikh.common/hwnd.interop.h>
 #include <robmikh.common/capture.desktop.interop.h>
 #include <robmikh.common/DesktopWindow.h>
+
+// Application resources
+#include "resource.h"
+#define MAIN_ICON MAKEINTRESOURCEW(IDI_MAINICON)

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="215.448"
+   inkscape:export-xdpi="215.448"
+   inkscape:export-filename="F:\Trunk\usbwatchericon.png"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 132.29167 132.29167"
+   height="500"
+   width="500">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="2552"
+     inkscape:window-height="1377"
+     inkscape:window-width="2560"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer3"
+     inkscape:document-units="px"
+     inkscape:cy="299.91141"
+     inkscape:cx="202.72799"
+     inkscape:zoom="0.98994949"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Lashes"
+     id="layer3"
+     inkscape:groupmode="layer">
+    <rect
+       ry="3.96875"
+       rx="3.96875"
+       y="13.096208"
+       x="60.135647"
+       height="26.994225"
+       width="12.828938"
+       id="rect847"
+       style="fill:#000000;fill-opacity:1;stroke-width:2.64583;stroke-miterlimit:4;stroke-dasharray:none" />
+    <rect
+       transform="rotate(-45)"
+       style="fill:#000000;fill-opacity:1;stroke-width:2.64583;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect847-8"
+       width="12.828938"
+       height="26.994225"
+       x="-16.241848"
+       y="30.348129"
+       rx="3.96875"
+       ry="3.96875" />
+    <rect
+       transform="rotate(45)"
+       style="fill:#000000;fill-opacity:1;stroke-width:2.64583;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect847-5"
+       width="12.828938"
+       height="26.994225"
+       x="96.584045"
+       y="-62.445034"
+       rx="3.96875"
+       ry="3.96875" />
+  </g>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Eye Shape">
+    <path
+       sodipodi:nodetypes="ccc"
+       id="path839"
+       d="m 2.5673044,65.441617 c 0,0 60.7780646,-78.185373 126.8668356,-0.885115 C 65.70568,144.21708 2.5673044,65.441617 2.5673044,65.441617 Z"
+       style="fill:#a200ff;stroke:#000000;stroke-width:2.92073;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1" />
+  </g>
+  <g
+     inkscape:label="USB Symbol"
+     id="layer2"
+     inkscape:groupmode="layer">
+    <path
+       style="stroke-width:0.215185"
+       d="m 113.33098,63.887898 -10.76721,-6.217985 v 4.435608 H 47.529559 L 58.245341,50.784208 c 0.911959,-0.730984 2.105156,-1.243769 3.332568,-1.272174 4.965393,0 7.914077,-0.0013 8.999472,-0.0034 0.735717,2.096117 2.711973,3.609083 5.061362,3.609083 2.972139,0 5.384144,-2.411794 5.384144,-5.385004 0,-2.974505 -2.411793,-5.385438 -5.384144,-5.385438 -2.349389,0 -4.325645,1.512106 -5.061362,3.606501 l -8.894028,-0.0015 c -2.4105,0 -4.936342,1.322527 -6.543988,2.872934 0.04392,-0.04605 0.08951,-0.09511 -0.0024,8.95e-4 -0.034,0.03831 -11.369088,12.010336 -11.369088,12.010336 -0.910014,0.729907 -2.102569,1.239465 -3.329128,1.26873 h -6.22575 c -0.825237,-4.112834 -4.457123,-7.211497 -8.813763,-7.211497 -4.967118,0 -8.993437,4.026326 -8.993437,8.991935 0,4.967115 4.026319,8.993656 8.993437,8.993656 4.357494,0 7.989388,-3.101246 8.814625,-7.217519 h 6.116632 c 0.0157,0 0.03139,8.95e-4 0.04733,0 H 53.90672 c 1.224183,0.0312 2.415233,0.541405 3.324394,1.272173 0,0 11.332497,11.971172 11.367575,12.009906 0.09081,0.09619 0.04563,0.04605 8.13e-4,8.94e-4 1.607653,1.550193 4.134569,2.871859 6.5455,2.871859 l 8.571246,-0.002 v 3.61014 h 10.76998 V 74.655755 H 83.716219 v 3.605425 c 0,0 -2.257502,-0.0041 -8.676258,-0.0041 -1.227632,-0.02819 -2.422123,-0.54033 -3.33365,-1.271312 L 60.988089,65.662313 h 41.575681 v 4.44271 z"
+       id="path1334" />
+  </g>
+</svg>
