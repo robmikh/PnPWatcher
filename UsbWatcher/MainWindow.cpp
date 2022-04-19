@@ -32,9 +32,16 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
 {
     auto instance = winrt::check_pointer(GetModuleHandleW(nullptr));
     m_dispatcherQueue = winrt::DispatcherQueue::GetForCurrentThread();
-    m_timestampFormatter = winrt::DateTimeFormatter(L"longtime");
+    m_timestampFormatter = winrt::DateTimeFormatter(L"year.full month.numeric day hour minute second timezone.abbreviated");
 
-    m_columns = { UsbEventColumn::Type, UsbEventColumn::Name, UsbEventColumn::DeviceId, UsbEventColumn::Timestamp };
+    m_columns = 
+    { 
+        UsbEventColumn::Type, 
+        UsbEventColumn::Name,
+        UsbEventColumn::Description,
+        UsbEventColumn::DeviceId, 
+        UsbEventColumn::Timestamp 
+    };
 
     std::call_once(MainWindowClassRegistration, []() { RegisterWindowClass(); });
 
@@ -186,6 +193,9 @@ void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEve
         break;
     case UsbEventColumn::Name:
         stream << usbEvent.Name;
+        break;
+    case UsbEventColumn::Description:
+        stream << usbEvent.Description;
         break;
     case UsbEventColumn::DeviceId:
         stream << usbEvent.DeviceId;

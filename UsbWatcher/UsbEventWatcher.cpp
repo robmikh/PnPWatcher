@@ -53,6 +53,7 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
 
                     auto type = usbEventType.value();
                     auto name = GetProperty<wil::unique_bstr>(usbDevice, L"Name");
+                    auto description = GetProperty<wil::unique_bstr>(usbDevice, L"Description");
                     auto deviceId = GetProperty<wil::unique_bstr>(usbDevice, L"DeviceId");
                     auto fileTime = winrt::file_time(eventTime);
                     auto timestamp = winrt::clock::from_file_time(fileTime);
@@ -62,6 +63,7 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
                     {
                         type,
                         std::wstring(name.get(), SysStringLen(name.get())),
+                        std::wstring(description.get(), SysStringLen(description.get())),
                         std::wstring(deviceId.get(), SysStringLen(deviceId.get())),
                         timestamp,
                     };

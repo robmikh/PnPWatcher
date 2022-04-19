@@ -10,6 +10,7 @@ struct UsbEvent
 {
 	UsbEventType Type;
 	std::wstring Name;
+	std::wstring Description;
 	std::wstring DeviceId;
 	winrt::Windows::Foundation::DateTime Timestamp;
 };
@@ -18,6 +19,7 @@ enum class UsbEventColumn
 {
 	Type,
 	Name,
+	Description,
 	DeviceId,
 	Timestamp,
 };
@@ -45,6 +47,9 @@ inline std::wostream& operator<< (std::wostream& os, UsbEventColumn const& colum
 		break;
 	case UsbEventColumn::Name:
 		os << L"Name";
+		break;
+	case UsbEventColumn::Description:
+		os << L"Description";
 		break;
 	case UsbEventColumn::DeviceId:
 		os << L"DeviceId";
