@@ -17,19 +17,13 @@ namespace util
 int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     // Initialize COM
-    winrt::init_apartment();
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-    // Create the DispatcherQueue that the compositor needs to run
+    // Create the DispatcherQueue that we'll use to dispatch things to the UI thread.
     auto controller = util::CreateDispatcherQueueControllerForCurrentThread();
 
-    // Create our window and visual tree
+    // Create our window
     auto window = MainWindow(L"UsbWatcher", 800, 600);
-    auto compositor = winrt::Compositor();
-    auto target = window.CreateWindowTarget(compositor);
-    auto root = compositor.CreateSpriteVisual();
-    root.RelativeSizeAdjustment({ 1.0f, 1.0f });
-    root.Brush(compositor.CreateColorBrush(winrt::Colors::White()));
-    target.Root(root);
 
     // Message pump
     MSG msg;
