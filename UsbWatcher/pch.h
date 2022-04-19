@@ -16,6 +16,8 @@
 #include <winrt/Windows.UI.Composition.h>
 #include <winrt/Windows.UI.Composition.Desktop.h>
 #include <winrt/Windows.UI.Popups.h>
+#include <winrt/Windows.Globalization.h>
+#include <winrt/Windows.Globalization.DateTimeFormatting.h>
 #include <winrt/Windows.Graphics.Capture.h>
 #include <winrt/Windows.Graphics.DirectX.h>
 #include <winrt/Windows.Graphics.DirectX.Direct3d11.h>
@@ -29,6 +31,12 @@
 #include <d2d1_3.h>
 #include <wincodec.h>
 
+// Common Controls
+#include <CommCtrl.h>
+
+// WMI
+#include <Wbemidl.h>
+
 // Shell
 #include <shellapi.h>
 
@@ -40,6 +48,8 @@
 #include <algorithm>
 #include <mutex>
 #include <functional>
+#include <sstream>
+#include <ostream>
 
 // robmikh.common
 #include <robmikh.common/composition.interop.h>
@@ -56,3 +66,6 @@
 // Application resources
 #include "resource.h"
 #define MAIN_ICON MAKEINTRESOURCEW(IDI_MAINICON)
+
+// Application helpers
+#include "wmiHelpers.h"

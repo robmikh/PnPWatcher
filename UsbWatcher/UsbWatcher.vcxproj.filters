@@ -9,6 +9,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="PopupMenu.cpp" />
+    <ClCompile Include="UsbEventWatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -16,6 +17,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="PopupMenu.h" />
+    <ClInclude Include="UsbEvent.h" />
+    <ClInclude Include="wmiHelpers.h" />
+    <ClInclude Include="UsbEventWatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UsbWatcher.rc" />
