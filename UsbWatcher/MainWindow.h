@@ -15,14 +15,26 @@ struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
 	void IsVisible(bool value);
 
 private:
+	enum class ListViewItemMenuItem
+	{
+		Copy,
+		CopyName,
+		CopyDescription,
+		CopyDeviceId,
+		CopyTimestamp,
+	};
+
 	static void RegisterWindowClass();
 	void CreateTrayIconMenu();
+	void CreateListViewItemMenu();
 	void OnOpenMenuItemClicked();
 	void CreateControls(HINSTANCE instance);
 	void ResizeProcessListView();
 	void OnUsbEventAdded(UsbEvent usbEvent);
 	void OnListViewNotify(LPARAM const lparam);
 	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column);
+	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent);
+	void CopyStringToClipboard(std::wstring const& string);
 
 private:
 	bool m_isVisible = false;
@@ -33,4 +45,5 @@ private:
 	std::unique_ptr<UsbEventWatcher> m_usbEventWatcher;
 	winrt::Windows::System::DispatcherQueue m_dispatcherQueue{ nullptr };
 	winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter m_timestampFormatter{ nullptr };
+	std::unique_ptr<SyncPopupMenu<ListViewItemMenuItem>> m_eventItemMenu;
 };

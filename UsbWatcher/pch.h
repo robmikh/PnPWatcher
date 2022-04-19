@@ -10,17 +10,12 @@
 // WinRT
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Foundation.Numerics.h>
 #include <winrt/Windows.System.h>
-#include <winrt/Windows.UI.h>
-#include <winrt/Windows.UI.Composition.h>
-#include <winrt/Windows.UI.Composition.Desktop.h>
 #include <winrt/Windows.UI.Popups.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
-#include <winrt/Windows.Graphics.Capture.h>
-#include <winrt/Windows.Graphics.DirectX.h>
-#include <winrt/Windows.Graphics.DirectX.Direct3d11.h>
+#include <winrt/Windows.ApplicationModel.h>
+#include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
 // WIL
 #include <wil/resource.h>
@@ -52,15 +47,8 @@
 #include <ostream>
 
 // robmikh.common
-#include <robmikh.common/composition.interop.h>
-#include <robmikh.common/direct3d11.interop.h>
-#include <robmikh.common/d3dHelpers.h>
-#include <robmikh.common/graphics.interop.h>
 #include <robmikh.common/dispatcherqueue.desktop.interop.h>
-#include <robmikh.common/d3dHelpers.desktop.h>
-#include <robmikh.common/composition.desktop.interop.h>
 #include <robmikh.common/hwnd.interop.h>
-#include <robmikh.common/capture.desktop.interop.h>
 #include <robmikh.common/DesktopWindow.h>
 
 // Application resources

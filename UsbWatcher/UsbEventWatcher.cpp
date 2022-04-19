@@ -77,7 +77,7 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
                     };
                     m_dispatcherQueue.TryEnqueue([usbEvent, callback]()
                         {
-                            callback(std::move(usbEvent));
+                            callback(usbEvent);
                         });
                 }
             }

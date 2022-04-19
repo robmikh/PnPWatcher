@@ -3,8 +3,10 @@
 
 namespace winrt
 {
-    using namespace Windows::System;
+    using namespace Windows::ApplicationModel::DataTransfer;
+    using namespace Windows::Foundation;
     using namespace Windows::Globalization::DateTimeFormatting;
+    using namespace Windows::System;
 }
 
 const std::wstring MainWindow::ClassName = L"UsbWatcher.MainWindow";
@@ -50,11 +52,23 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
     WINRT_ASSERT(m_window);
 
     CreateTrayIconMenu();
+    CreateListViewItemMenu();
     CreateControls(instance);
 
     m_usbEventWatcher = std::make_unique<UsbEventWatcher>(
         m_dispatcherQueue, 
         std::bind(&MainWindow::OnUsbEventAdded, this, std::placeholders::_1));
+
+#ifdef _DEBUG
+    OnUsbEventAdded(
+        {
+            UsbEventType::Added,
+            L"Debug Name",
+            L"Debug Description",
+            L"Debug DeviceId",
+            winrt::clock::now(),
+        });
+#endif
 }
 
 LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPARAM const lparam)
@@ -112,6 +126,19 @@ void MainWindow::CreateTrayIconMenu()
     m_trayIconMenu = std::make_unique<PopupMenu>();
     m_trayIconMenu->AppendMenuItem(L"Open", std::bind(&MainWindow::OnOpenMenuItemClicked, this));
     m_trayIconMenu->AppendMenuItem(L"Exit", []() { PostQuitMessage(0); });
+}
+
+void MainWindow::CreateListViewItemMenu()
+{
+    std::vector<SyncPopupMenu<ListViewItemMenuItem>::MenuItem> items =
+    {
+        { L"Copy", ListViewItemMenuItem::Copy },
+        { L"Copy Name", ListViewItemMenuItem::CopyName },
+        { L"Copy Description", ListViewItemMenuItem::CopyDescription },
+        { L"Copy DeviceId", ListViewItemMenuItem::CopyDeviceId },
+        { L"Copy Timestamp", ListViewItemMenuItem::CopyTimestamp },
+    };
+    m_eventItemMenu = std::make_unique<SyncPopupMenu<ListViewItemMenuItem>>(items);
 }
 
 void MainWindow::OnOpenMenuItemClicked()
@@ -243,5 +270,62 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
         }
     }
     break;
+    case NM_RCLICK:
+    {
+        auto itemInfo = reinterpret_cast<NMITEMACTIVATE*>(lparam);
+        auto itemIndex = itemInfo->iItem;
+        if (itemIndex >= 0)
+        {
+            auto point = itemInfo->ptAction;
+            winrt::check_bool(ClientToScreen(m_window, &point));
+            auto result = m_eventItemMenu->ShowMenu(m_window, point.x, point.y);
+            if (result.has_value())
+            {
+                const auto& usbEvent = m_usbEvents[itemIndex];
+                std::wstringstream stream;
+                switch (result.value())
+                {
+                case ListViewItemMenuItem::Copy:
+                    WriteUsbEventData(stream, usbEvent);
+                    break;
+                case ListViewItemMenuItem::CopyName:
+                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Name);
+                    break;
+                case ListViewItemMenuItem::CopyDescription:
+                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Description);
+                    break;
+                case ListViewItemMenuItem::CopyDeviceId:
+                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::DeviceId);
+                    break;
+                case ListViewItemMenuItem::CopyTimestamp:
+                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Timestamp);
+                    break;
+                }
+                CopyStringToClipboard(stream.str());
+            }
+        }
     }
+        break;
+    }
+}
+
+void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent)
+{
+    for (auto i = 0; i < m_columns.size(); i++)
+    {
+        const auto& column = m_columns[i];
+        WriteUsbEventData(stream, usbEvent, column);
+        if (i != m_columns.size() - 1)
+        {
+            stream << L"  |  ";
+        }
+    }
+}
+
+void MainWindow::CopyStringToClipboard(std::wstring const& string)
+{
+    auto dataPackage = winrt::DataPackage();
+    dataPackage.RequestedOperation(winrt::DataPackageOperation::Copy);
+    dataPackage.SetText(string);
+    winrt::Clipboard::SetContent(dataPackage);
 }
