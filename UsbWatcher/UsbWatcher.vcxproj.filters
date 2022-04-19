@@ -20,6 +20,7 @@
     <ClInclude Include="UsbEvent.h" />
     <ClInclude Include="wmiHelpers.h" />
     <ClInclude Include="UsbEventWatcher.h" />
+    <ClInclude Include="RingList.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="UsbWatcher.rc" />

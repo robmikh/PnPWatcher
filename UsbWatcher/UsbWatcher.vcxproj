@@ -114,6 +114,7 @@
     <ClInclude Include="PopupMenu.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RingList.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="UsbEvent.h" />
     <ClInclude Include="UsbEventWatcher.h" />

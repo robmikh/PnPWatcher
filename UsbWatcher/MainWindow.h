@@ -3,6 +3,7 @@
 #include "PopupMenu.h"
 #include "UsbEvent.h"
 #include "UsbEventWatcher.h"
+#include "RingList.h"
 
 struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
 {
@@ -41,7 +42,7 @@ private:
 	std::unique_ptr<PopupMenu> m_trayIconMenu;
 	HWND m_usbEventsListView = nullptr;
 	std::vector<UsbEventColumn> m_columns;
-	std::vector<UsbEvent> m_usbEvents;
+	RingList<UsbEvent> m_usbEvents;
 	std::unique_ptr<UsbEventWatcher> m_usbEventWatcher;
 	winrt::Windows::System::DispatcherQueue m_dispatcherQueue{ nullptr };
 	winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter m_timestampFormatter{ nullptr };

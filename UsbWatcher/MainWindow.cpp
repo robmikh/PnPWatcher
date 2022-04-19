@@ -36,6 +36,12 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
     m_dispatcherQueue = winrt::DispatcherQueue::GetForCurrentThread();
     m_timestampFormatter = winrt::DateTimeFormatter(L"year.full month.numeric day hour minute second timezone.abbreviated");
 
+    size_t maxEvents = 100;
+#ifdef _DEBUG
+    maxEvents = 3;
+#endif
+    m_usbEvents = RingList<UsbEvent>(maxEvents);
+
     m_columns = 
     { 
         UsbEventColumn::Type, 
@@ -60,14 +66,21 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
         std::bind(&MainWindow::OnUsbEventAdded, this, std::placeholders::_1));
 
 #ifdef _DEBUG
-    OnUsbEventAdded(
-        {
-            UsbEventType::Added,
-            L"Debug Name",
-            L"Debug Description",
-            L"Debug DeviceId",
-            winrt::clock::now(),
-        });
+    for (auto i = 0; i < maxEvents + 2; i++)
+    {
+        std::wstringstream stream;
+        stream << L"Debug Name (" << i << L")";
+        auto name = stream.str();
+        OnUsbEventAdded(
+            {
+                UsbEventType::Added,
+                name,
+                L"Debug Description",
+                L"Debug DeviceId",
+                winrt::clock::now(),
+            });
+    }
+    IsVisible(true);
 #endif
 }
 
@@ -204,11 +217,17 @@ void MainWindow::ResizeProcessListView()
 
 void MainWindow::OnUsbEventAdded(UsbEvent usbEvent)
 {
-    auto newIndex = m_usbEvents.size();
+    auto newIndex = m_usbEvents.Size();
     LVITEMW item = {};
     item.iItem = static_cast<int>(newIndex);
-    m_usbEvents.push_back(std::move(usbEvent));
+    auto adjusted = m_usbEvents.Add(std::move(usbEvent));
     ListView_InsertItem(m_usbEventsListView, &item);
+    if (adjusted)
+    {
+        ListView_DeleteItem(m_usbEventsListView, 0);
+        ListView_RedrawItems(m_usbEventsListView, 0, m_usbEvents.Size() - 1);
+        UpdateWindow(m_usbEventsListView);
+    }
 }
 
 void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column)
@@ -277,7 +296,7 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
         if (itemIndex >= 0)
         {
             auto point = itemInfo->ptAction;
-            winrt::check_bool(ClientToScreen(m_window, &point));
+            winrt::check_bool(ClientToScreen(m_usbEventsListView, &point));
             auto result = m_eventItemMenu->ShowMenu(m_window, point.x, point.y);
             if (result.has_value())
             {
