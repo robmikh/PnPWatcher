@@ -117,6 +117,23 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
     case WM_SIZE:
         ResizeProcessListView();
         break;
+    case WM_COMMAND:
+    {
+        switch (LOWORD(wparam))
+        {
+        case ID_COPY_CMD:
+            auto index = ListView_GetSelectionMark(m_usbEventsListView);
+            if (index >= 0)
+            {
+                const auto& usbEvent = m_usbEvents[index];
+                std::wstringstream stream;
+                WriteUsbEventData(stream, usbEvent);
+                CopyStringToClipboard(stream.str());
+            }
+            break;
+        }
+    }
+        break;
     default:
         return base_type::MessageHandler(message, wparam, lparam);
     }

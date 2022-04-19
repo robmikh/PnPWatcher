@@ -28,12 +28,19 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     // Create a tray icon
     auto trayIcon = TrayIcon(window.m_window, MainWindow::TrayIconMessage, 0, L"UsbWatcher");
 
+    // Load accelerators
+    auto instance = winrt::check_pointer(GetModuleHandleW(nullptr));
+    wil::unique_haccel accel(winrt::check_pointer(LoadAcceleratorsW(instance, MAKEINTRESOURCEW(IDR_ACCELERATOR1))));
+
     // Message pump
     MSG msg;
     while (GetMessageW(&msg, nullptr, 0, 0))
     {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
+        if (!TranslateAcceleratorW(window.m_window, accel.get(), &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+        }
     }
 
     return static_cast<int>(msg.wParam);

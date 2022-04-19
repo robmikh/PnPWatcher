@@ -54,6 +54,17 @@ END
 // remains consistent on all systems.
 IDI_MAINICON            ICON                    "UsbWatcher.ico"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS
+BEGIN
+    "C",            ID_COPY_CMD,            VIRTKEY, CONTROL, NOINVERT
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
