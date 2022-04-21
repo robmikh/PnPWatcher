@@ -35,5 +35,5 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: 'UsbWatcher_${{ matrix.platform }}_${{ matrix.configuration }}'
+        name: 'PnPWatcher_${{ matrix.platform }}_${{ matrix.configuration }}'
         path: '.\${{ matrix.platform }}\${{ matrix.configuration }}\*'

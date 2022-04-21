@@ -1,2 +1,2 @@
-# UsbWatcher
-A utility to see USB devices come and go. Supports Windows 10 and above.
+# PnPWatcher
+A utility to see PnP devices come and go. Supports Windows 10 and above.

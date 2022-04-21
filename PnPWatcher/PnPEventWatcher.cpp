@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "UsbEventWatcher.h"
+#include "PnPEventWatcher.h"
 
 namespace winrt
 {
@@ -7,7 +7,7 @@ namespace winrt
     using namespace Windows::System;
 }
 
-UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, std::function<void(UsbEvent)> callback)
+PnPEventWatcher::PnPEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, std::function<void(PnPEvent)> callback)
 {
     m_dispatcherQueue = dispatcherQueue;
     m_callback = callback;
@@ -35,17 +35,17 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
 
                 auto classNameBstr = GetProperty<wil::unique_bstr>(obj, L"__CLASS");
                 auto className = std::wstring(classNameBstr.get(), SysStringLen(classNameBstr.get()));
-                std::optional<UsbEventType> usbEventType = std::nullopt;
+                std::optional<PnPEventType> pnpEventType = std::nullopt;
                 if (className == L"__InstanceCreationEvent")
                 {
-                    usbEventType = std::optional(UsbEventType::Added);
+                    pnpEventType = std::optional(PnPEventType::Added);
                 }
                 else if (className == L"__InstanceDeletionEvent")
                 {
-                    usbEventType = std::optional(UsbEventType::Removed);
+                    pnpEventType = std::optional(PnPEventType::Removed);
                 }
 
-                if (usbEventType.has_value())
+                if (pnpEventType.has_value())
                 {
                     // The docs (https://docs.microsoft.com/en-us/windows/win32/wmisdk/--instancecreationevent)
                     // claim that this property is a uint64... but the variant we get back is a BSTR. To make
@@ -57,17 +57,17 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
                     auto eventTime = std::stoull(eventTimeString);
 
                     auto targetInstance = GetProperty<winrt::com_ptr<IUnknown>>(obj, L"TargetInstance");
-                    auto usbDevice = targetInstance.as<IWbemClassObject>();
+                    auto pnpEventDevice = targetInstance.as<IWbemClassObject>();
 
-                    auto type = usbEventType.value();
-                    auto name = GetProperty<std::wstring>(usbDevice, L"Name");
-                    auto description = GetProperty<std::wstring>(usbDevice, L"Description");
-                    auto deviceId = GetProperty<std::wstring>(usbDevice, L"DeviceId");
+                    auto type = pnpEventType.value();
+                    auto name = GetProperty<std::wstring>(pnpEventDevice, L"Name");
+                    auto description = GetProperty<std::wstring>(pnpEventDevice, L"Description");
+                    auto deviceId = GetProperty<std::wstring>(pnpEventDevice, L"DeviceId");
                     auto fileTime = winrt::file_time(eventTime);
                     auto timestamp = winrt::clock::from_file_time(fileTime);
 
                     auto callback = m_callback;
-                    UsbEvent usbEvent =
+                    PnPEvent pnpEvent =
                     {
                         type,
                         name,
@@ -75,9 +75,9 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
                         deviceId,
                         timestamp,
                     };
-                    m_dispatcherQueue.TryEnqueue([usbEvent, callback]()
+                    m_dispatcherQueue.TryEnqueue([pnpEvent, callback]()
                         {
-                            callback(usbEvent);
+                            callback(pnpEvent);
                         });
                 }
             }
@@ -88,13 +88,13 @@ UsbEventWatcher::UsbEventWatcher(winrt::DispatcherQueue const& dispatcherQueue, 
     m_sinkStub = stubUnknown.as<IWbemObjectSink>();
     winrt::check_hresult(m_services->ExecNotificationQueryAsync(
         BSTR(L"WQL"),
-        BSTR(L"SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_USBHub'"),
+        BSTR(L"SELECT * FROM __InstanceOperationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_PnPEntity'"),
         WBEM_FLAG_SEND_STATUS,
         nullptr,
         m_sinkStub.get()));
 }
 
-UsbEventWatcher::~UsbEventWatcher()
+PnPEventWatcher::~PnPEventWatcher()
 {
     winrt::check_hresult(m_services->CancelAsyncCall(m_sinkStub.get()));
 }

@@ -13,7 +13,7 @@ namespace winrt
     using namespace Windows::UI::Popups;
 }
 
-const std::wstring MainWindow::ClassName = L"UsbWatcher.MainWindow";
+const std::wstring MainWindow::ClassName = L"PnPWatcher.MainWindow";
 const std::wstring MainWindow::CopyDelim = L"  |  ";
 std::once_flag MainWindowClassRegistration;
 
@@ -43,17 +43,17 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
 
     size_t maxEvents = 100;
 #ifdef _DEBUG
-    maxEvents = 3;
+    maxEvents = 10;
 #endif
-    m_usbEvents = RingList<UsbEvent>(maxEvents);
+    m_pnpEvents = RingList<PnPEvent>(maxEvents);
 
     m_columns = 
     { 
-        UsbEventColumn::Type, 
-        UsbEventColumn::Name,
-        UsbEventColumn::Description,
-        UsbEventColumn::DeviceId, 
-        UsbEventColumn::Timestamp 
+        PnPEventColumn::Type, 
+        PnPEventColumn::Name,
+        PnPEventColumn::Description,
+        PnPEventColumn::DeviceId, 
+        PnPEventColumn::Timestamp 
     };
 
     std::call_once(MainWindowClassRegistration, []() { RegisterWindowClass(); });
@@ -68,9 +68,9 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
     winrt::check_bool(SetMenu(m_window, m_mainMenu.get()));
     CreateControls(instance);
 
-    m_usbEventWatcher = std::make_unique<UsbEventWatcher>(
+    m_pnpEventWatcher = std::make_unique<PnPEventWatcher>(
         m_dispatcherQueue, 
-        std::bind(&MainWindow::OnUsbEventAdded, this, std::placeholders::_1));
+        std::bind(&MainWindow::OnPnPEventAdded, this, std::placeholders::_1));
 
 #ifdef _DEBUG
     for (auto i = 0; i < maxEvents + 2; i++)
@@ -78,9 +78,9 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
         std::wstringstream stream;
         stream << L"Debug Name (" << i << L")";
         auto name = stream.str();
-        OnUsbEventAdded(
+        OnPnPEventAdded(
             {
-                UsbEventType::Added,
+                PnPEventType::Added,
                 name,
                 L"Debug Description",
                 L"Debug DeviceId",
@@ -135,12 +135,12 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
         case ID_EDIT_COPY:
         case ID_COPY_CMD:
         {
-            auto index = ListView_GetSelectionMark(m_usbEventsListView);
+            auto index = ListView_GetSelectionMark(m_pnpEventsListView);
             if (index >= 0)
             {
-                const auto& usbEvent = m_usbEvents[index];
+                const auto& pnpEvent = m_pnpEvents[index];
                 std::wstringstream stream;
-                WriteUsbEventData(stream, usbEvent, CopyDelim);
+                WritePnPEventData(stream, pnpEvent, CopyDelim);
                 CopyStringToClipboard(stream.str());
             }
         }
@@ -153,8 +153,8 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
             break;
         case ID_EDIT_CLEAR:
         {
-            m_usbEvents.Clear();
-            ListView_DeleteAllItems(m_usbEventsListView);
+            m_pnpEvents.Clear();
+            ListView_DeleteAllItems(m_pnpEventsListView);
         }
             break;
         case ID_TOOLS_EXPORTTOCSV:
@@ -212,7 +212,7 @@ void MainWindow::CreateControls(HINSTANCE instance)
 {
     auto style = WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_AUTOARRANGE | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS | LVS_SINGLESEL;
 
-    m_usbEventsListView = winrt::check_pointer(CreateWindowExW(
+    m_pnpEventsListView = winrt::check_pointer(CreateWindowExW(
         0, //WS_EX_CLIENTEDGE,
         WC_LISTVIEW,
         L"",
@@ -240,9 +240,9 @@ void MainWindow::CreateControls(HINSTANCE instance)
         for (auto i = 0; i < columnNames.size(); i++)
         {
             listViewColumn.pszText = columnNames[i].data();
-            ListView_InsertColumn(m_usbEventsListView, i, &listViewColumn);
+            ListView_InsertColumn(m_pnpEventsListView, i, &listViewColumn);
         }
-        ListView_SetExtendedListViewStyle(m_usbEventsListView, LVS_EX_AUTOSIZECOLUMNS | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+        ListView_SetExtendedListViewStyle(m_pnpEventsListView, LVS_EX_AUTOSIZECOLUMNS | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
     }
 
     ResizeProcessListView();
@@ -250,12 +250,12 @@ void MainWindow::CreateControls(HINSTANCE instance)
 
 void MainWindow::ResizeProcessListView()
 {
-    if (m_usbEventsListView)
+    if (m_pnpEventsListView)
     {
         RECT rect = {};
         winrt::check_bool(GetClientRect(m_window, &rect));
         winrt::check_bool(MoveWindow(
-            m_usbEventsListView,
+            m_pnpEventsListView,
             rect.left,
             rect.top,
             rect.right - rect.left,
@@ -264,39 +264,39 @@ void MainWindow::ResizeProcessListView()
     }
 }
 
-void MainWindow::OnUsbEventAdded(UsbEvent usbEvent)
+void MainWindow::OnPnPEventAdded(PnPEvent pnpEvent)
 {
-    auto newIndex = m_usbEvents.Size();
+    auto newIndex = m_pnpEvents.Size();
     LVITEMW item = {};
     item.iItem = static_cast<int>(newIndex);
-    auto adjusted = m_usbEvents.Add(std::move(usbEvent));
-    ListView_InsertItem(m_usbEventsListView, &item);
+    auto adjusted = m_pnpEvents.Add(std::move(pnpEvent));
+    ListView_InsertItem(m_pnpEventsListView, &item);
     if (adjusted)
     {
-        ListView_DeleteItem(m_usbEventsListView, 0);
-        ListView_RedrawItems(m_usbEventsListView, 0, m_usbEvents.Size() - 1);
-        UpdateWindow(m_usbEventsListView);
+        ListView_DeleteItem(m_pnpEventsListView, 0);
+        ListView_RedrawItems(m_pnpEventsListView, 0, m_pnpEvents.Size() - 1);
+        UpdateWindow(m_pnpEventsListView);
     }
 }
 
-void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column)
+void MainWindow::WritePnPEventData(std::wostream& stream, PnPEvent const& pnpEvent, PnPEventColumn const& column)
 {
     switch (column)
     {
-    case UsbEventColumn::Type:
-        stream << usbEvent.Type;
+    case PnPEventColumn::Type:
+        stream << pnpEvent.Type;
         break;
-    case UsbEventColumn::Name:
-        stream << usbEvent.Name;
+    case PnPEventColumn::Name:
+        stream << pnpEvent.Name;
         break;
-    case UsbEventColumn::Description:
-        stream << usbEvent.Description;
+    case PnPEventColumn::Description:
+        stream << pnpEvent.Description;
         break;
-    case UsbEventColumn::DeviceId:
-        stream << usbEvent.DeviceId;
+    case PnPEventColumn::DeviceId:
+        stream << pnpEvent.DeviceId;
         break;
-    case UsbEventColumn::Timestamp:
-        stream << std::wstring_view(m_timestampFormatter.Format(usbEvent.Timestamp));
+    case PnPEventColumn::Timestamp:
+        stream << std::wstring_view(m_timestampFormatter.Format(pnpEvent.Timestamp));
         break;
     }
 }
@@ -317,9 +317,9 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
         {
             if (itemDisplayInfo->item.mask & LVIF_TEXT)
             {
-                auto& usbEvent = m_usbEvents[itemIndex];
+                auto& pnpEvent = m_pnpEvents[itemIndex];
                 std::wstringstream stream;
-                WriteUsbEventData(stream, usbEvent, m_columns[0]);
+                WritePnPEventData(stream, pnpEvent, m_columns[0]);
                 auto string = stream.str();
                 wcsncpy_s(itemDisplayInfo->item.pszText, itemDisplayInfo->item.cchTextMax, string.data(), _TRUNCATE);
             }
@@ -328,10 +328,10 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
         {
             if (itemDisplayInfo->item.mask & LVIF_TEXT)
             {
-                auto& usbEvent = m_usbEvents[itemIndex];
+                auto& pnpEvent = m_pnpEvents[itemIndex];
                 auto& column = m_columns[subItemIndex];
                 std::wstringstream stream;
-                WriteUsbEventData(stream, usbEvent, column);
+                WritePnPEventData(stream, pnpEvent, column);
                 auto string = stream.str();
                 wcsncpy_s(itemDisplayInfo->item.pszText, itemDisplayInfo->item.cchTextMax, string.data(), _TRUNCATE);
             }
@@ -345,28 +345,28 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
         if (itemIndex >= 0)
         {
             auto point = itemInfo->ptAction;
-            winrt::check_bool(ClientToScreen(m_usbEventsListView, &point));
+            winrt::check_bool(ClientToScreen(m_pnpEventsListView, &point));
             auto result = m_eventItemMenu->ShowMenu(m_window, point.x, point.y);
             if (result.has_value())
             {
-                const auto& usbEvent = m_usbEvents[itemIndex];
+                const auto& pnpEvent = m_pnpEvents[itemIndex];
                 std::wstringstream stream;
                 switch (result.value())
                 {
                 case ListViewItemMenuItem::Copy:
-                    WriteUsbEventData(stream, usbEvent, CopyDelim);
+                    WritePnPEventData(stream, pnpEvent, CopyDelim);
                     break;
                 case ListViewItemMenuItem::CopyName:
-                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Name);
+                    WritePnPEventData(stream, pnpEvent, PnPEventColumn::Name);
                     break;
                 case ListViewItemMenuItem::CopyDescription:
-                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Description);
+                    WritePnPEventData(stream, pnpEvent, PnPEventColumn::Description);
                     break;
                 case ListViewItemMenuItem::CopyDeviceId:
-                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::DeviceId);
+                    WritePnPEventData(stream, pnpEvent, PnPEventColumn::DeviceId);
                     break;
                 case ListViewItemMenuItem::CopyTimestamp:
-                    WriteUsbEventData(stream, usbEvent, UsbEventColumn::Timestamp);
+                    WritePnPEventData(stream, pnpEvent, PnPEventColumn::Timestamp);
                     break;
                 }
                 CopyStringToClipboard(stream.str());
@@ -377,12 +377,12 @@ void MainWindow::OnListViewNotify(LPARAM const lparam)
     }
 }
 
-void MainWindow::WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, std::wstring const& delim)
+void MainWindow::WritePnPEventData(std::wostream& stream, PnPEvent const& pnpEvent, std::wstring const& delim)
 {
     for (auto i = 0; i < m_columns.size(); i++)
     {
         const auto& column = m_columns[i];
-        WriteUsbEventData(stream, usbEvent, column);
+        WritePnPEventData(stream, pnpEvent, column);
         if (i != m_columns.size() - 1)
         {
             stream << delim;
@@ -400,11 +400,11 @@ void MainWindow::CopyStringToClipboard(std::wstring const& string)
 
 winrt::fire_and_forget MainWindow::ShowAbout()
 {
-    auto dialog = winrt::MessageDialog(L"UsbWatcher is an open source application written by Robert Mikhayelyan", L"About");
+    auto dialog = winrt::MessageDialog(L"PnPWatcher is an open source application written by Robert Mikhayelyan", L"About");
     auto commands = dialog.Commands();
     commands.Append(winrt::UICommand(L"Open GitHub", [](auto&) -> winrt::fire_and_forget
         {
-            co_await winrt::Launcher::LaunchUriAsync(winrt::Uri(L"https://github.com/robmikh/UsbWatcher"));
+            co_await winrt::Launcher::LaunchUriAsync(winrt::Uri(L"https://github.com/robmikh/PnPWatcher"));
         }));
     commands.Append(winrt::UICommand(L"Close"));
 
@@ -429,10 +429,10 @@ winrt::IAsyncAction MainWindow::ExportToCsvAsync()
         }
     }
     sstream << std::endl;
-    for (auto i = 0; i < m_usbEvents.Size(); i++)
+    for (auto i = 0; i < m_pnpEvents.Size(); i++)
     {
-        const auto& usbEvent = m_usbEvents[i];
-        WriteUsbEventData(sstream, usbEvent, L",");
+        const auto& pnpEvent = m_pnpEvents[i];
+        WritePnPEventData(sstream, pnpEvent, L",");
         sstream << std::endl;
     }
     auto text = sstream.str();
@@ -440,7 +440,7 @@ winrt::IAsyncAction MainWindow::ExportToCsvAsync()
     auto picker = winrt::FileSavePicker();
     InitializeObjectWithWindowHandle(picker);
     picker.SuggestedStartLocation(winrt::PickerLocationId::PicturesLibrary);
-    picker.SuggestedFileName(L"usbEvents");
+    picker.SuggestedFileName(L"pnpEvents");
     picker.DefaultFileExtension(L".csv");
     picker.FileTypeChoices().Clear();
     picker.FileTypeChoices().Insert(L"CSV Data", winrt::single_threaded_vector<winrt::hstring>({ L".csv" }));
@@ -450,6 +450,6 @@ winrt::IAsyncAction MainWindow::ExportToCsvAsync()
         co_await winrt::FileIO::WriteTextAsync(file, text, winrt::UnicodeEncoding::Utf8);
 
         co_await m_dispatcherQueue;
-        MessageBoxW(m_window, L"Export completed!", L"UsbWatcher", MB_OK | MB_APPLMODAL);
+        MessageBoxW(m_window, L"Export completed!", L"PnPWatcher", MB_OK | MB_APPLMODAL);
     }
 }

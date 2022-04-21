@@ -9,7 +9,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="PopupMenu.cpp" />
-    <ClCompile Include="UsbEventWatcher.cpp" />
+    <ClCompile Include="PnPEventWatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -17,15 +17,15 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrayIcon.h" />
     <ClInclude Include="PopupMenu.h" />
-    <ClInclude Include="UsbEvent.h" />
+    <ClInclude Include="PnPEvent.h" />
     <ClInclude Include="wmiHelpers.h" />
-    <ClInclude Include="UsbEventWatcher.h" />
+    <ClInclude Include="PnPEventWatcher.h" />
     <ClInclude Include="RingList.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="UsbWatcher.rc" />
+    <ResourceCompile Include="PnPWatcher.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="UsbWatcher.ico" />
+    <Image Include="PnPWatcher.ico" />
   </ItemGroup>
 </Project>

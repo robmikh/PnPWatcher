@@ -1,21 +1,21 @@
 #pragma once
 
-enum class UsbEventType
+enum class PnPEventType
 {
 	Added,
 	Removed,
 };
 
-struct UsbEvent
+struct PnPEvent
 {
-	UsbEventType Type;
+	PnPEventType Type;
 	std::wstring Name;
 	std::wstring Description;
 	std::wstring DeviceId;
 	winrt::Windows::Foundation::DateTime Timestamp;
 };
 
-enum class UsbEventColumn
+enum class PnPEventColumn
 {
 	Type,
 	Name,
@@ -24,37 +24,37 @@ enum class UsbEventColumn
 	Timestamp,
 };
 
-inline std::wostream& operator<< (std::wostream& os, UsbEventType const& type)
+inline std::wostream& operator<< (std::wostream& os, PnPEventType const& type)
 {
 	switch (type)
 	{
-	case UsbEventType::Added:
+	case PnPEventType::Added:
 		os << L"Added";
 		break;
-	case UsbEventType::Removed:
+	case PnPEventType::Removed:
 		os << L"Removed";
 		break;
 	}
 	return os;
 }
 
-inline std::wostream& operator<< (std::wostream& os, UsbEventColumn const& column)
+inline std::wostream& operator<< (std::wostream& os, PnPEventColumn const& column)
 {
 	switch (column)
 	{
-	case UsbEventColumn::Type:
+	case PnPEventColumn::Type:
 		os <<  L"Event Type";
 		break;
-	case UsbEventColumn::Name:
+	case PnPEventColumn::Name:
 		os << L"Name";
 		break;
-	case UsbEventColumn::Description:
+	case PnPEventColumn::Description:
 		os << L"Description";
 		break;
-	case UsbEventColumn::DeviceId:
+	case PnPEventColumn::DeviceId:
 		os << L"DeviceId";
 		break;
-	case UsbEventColumn::Timestamp:
+	case PnPEventColumn::Timestamp:
 		os << L"Timestamp";
 		break;
 	}

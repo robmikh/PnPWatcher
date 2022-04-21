@@ -1,8 +1,8 @@
 #pragma once
 #include <robmikh.common/DesktopWindow.h>
 #include "PopupMenu.h"
-#include "UsbEvent.h"
-#include "UsbEventWatcher.h"
+#include "PnPEvent.h"
+#include "PnPEventWatcher.h"
 #include "RingList.h"
 
 struct MainWindow : robmikh::common::desktop::DesktopWindow<MainWindow>
@@ -32,10 +32,10 @@ private:
 	void OnOpenMenuItemClicked();
 	void CreateControls(HINSTANCE instance);
 	void ResizeProcessListView();
-	void OnUsbEventAdded(UsbEvent usbEvent);
+	void OnPnPEventAdded(PnPEvent pnpEvent);
 	void OnListViewNotify(LPARAM const lparam);
-	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, UsbEventColumn const& column);
-	void WriteUsbEventData(std::wostream& stream, UsbEvent const& usbEvent, std::wstring const& delim);
+	void WritePnPEventData(std::wostream& stream, PnPEvent const& pnpEvent, PnPEventColumn const& column);
+	void WritePnPEventData(std::wostream& stream, PnPEvent const& pnpEvent, std::wstring const& delim);
 	void CopyStringToClipboard(std::wstring const& string);
 	winrt::fire_and_forget ShowAbout();
 	winrt::Windows::Foundation::IAsyncAction ExportToCsvAsync();
@@ -43,10 +43,10 @@ private:
 private:
 	bool m_isVisible = false;
 	std::unique_ptr<PopupMenu> m_trayIconMenu;
-	HWND m_usbEventsListView = nullptr;
-	std::vector<UsbEventColumn> m_columns;
-	RingList<UsbEvent> m_usbEvents;
-	std::unique_ptr<UsbEventWatcher> m_usbEventWatcher;
+	HWND m_pnpEventsListView = nullptr;
+	std::vector<PnPEventColumn> m_columns;
+	RingList<PnPEvent> m_pnpEvents;
+	std::unique_ptr<PnPEventWatcher> m_pnpEventWatcher;
 	winrt::Windows::System::DispatcherQueue m_dispatcherQueue{ nullptr };
 	winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter m_timestampFormatter{ nullptr };
 	std::unique_ptr<SyncPopupMenu<ListViewItemMenuItem>> m_eventItemMenu;

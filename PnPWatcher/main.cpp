@@ -23,10 +23,10 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     auto controller = util::CreateDispatcherQueueControllerForCurrentThread();
 
     // Create our window
-    auto window = MainWindow(L"UsbWatcher", 800, 600);
+    auto window = MainWindow(L"PnPWatcher", 800, 600);
 
     // Create a tray icon
-    auto trayIcon = TrayIcon(window.m_window, MainWindow::TrayIconMessage, 0, L"UsbWatcher");
+    auto trayIcon = TrayIcon(window.m_window, MainWindow::TrayIconMessage, 0, L"PnPWatcher");
 
     // Load accelerators
     auto instance = winrt::check_pointer(GetModuleHandleW(nullptr));
