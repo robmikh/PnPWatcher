@@ -29,6 +29,7 @@ private:
 	static void RegisterWindowClass();
 	void CreateTrayIconMenu();
 	void CreateListViewItemMenu();
+	void CreateMainWindowMenu(HINSTANCE instance);
 	void OnOpenMenuItemClicked();
 	void CreateControls(HINSTANCE instance);
 	void ResizeProcessListView();
@@ -39,6 +40,7 @@ private:
 	void CopyStringToClipboard(std::wstring const& string);
 	winrt::fire_and_forget ShowAbout();
 	winrt::Windows::Foundation::IAsyncAction ExportToCsvAsync();
+	void ClearEventList();
 
 private:
 	bool m_isVisible = false;
@@ -51,4 +53,9 @@ private:
 	winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter m_timestampFormatter{ nullptr };
 	std::unique_ptr<SyncPopupMenu<ListViewItemMenuItem>> m_eventItemMenu;
 	wil::unique_hmenu m_mainMenu;
+
+#ifdef _DEBUG
+	wil::unique_hmenu m_debugMenu;
+	size_t m_debugEventCounter = 0;
+#endif
 };

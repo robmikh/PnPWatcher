@@ -18,6 +18,8 @@ const std::wstring MainWindow::CopyDelim = L"  |  ";
 std::once_flag MainWindowClassRegistration;
 
 #define ID_LISTVIEW  2000 // ?????
+#define ID_DEBUG_ADDDEBUGEVENT 50000
+#define ID_DEBUG_RESIZEEVENTLIST (ID_DEBUG_ADDDEBUGEVENT + 1)
 
 void MainWindow::RegisterWindowClass()
 {
@@ -42,9 +44,6 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
     m_timestampFormatter = winrt::DateTimeFormatter(L"year.full month.numeric day hour minute second timezone.abbreviated");
 
     size_t maxEvents = 100;
-#ifdef _DEBUG
-    maxEvents = 10;
-#endif
     m_pnpEvents = RingList<PnPEvent>(maxEvents);
 
     m_columns = 
@@ -64,8 +63,7 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
 
     CreateTrayIconMenu();
     CreateListViewItemMenu();
-    m_mainMenu.reset(winrt::check_pointer(LoadMenuW(instance, MAKEINTRESOURCEW(IDR_MAIN_WINDOW_MENU))));
-    winrt::check_bool(SetMenu(m_window, m_mainMenu.get()));
+    CreateMainWindowMenu(instance);
     CreateControls(instance);
 
     m_pnpEventWatcher = std::make_unique<PnPEventWatcher>(
@@ -73,20 +71,6 @@ MainWindow::MainWindow(std::wstring const& titleString, int width, int height)
         std::bind(&MainWindow::OnPnPEventAdded, this, std::placeholders::_1));
 
 #ifdef _DEBUG
-    for (auto i = 0; i < maxEvents + 2; i++)
-    {
-        std::wstringstream stream;
-        stream << L"Debug Name (" << i << L")";
-        auto name = stream.str();
-        OnPnPEventAdded(
-            {
-                PnPEventType::Added,
-                name,
-                L"Debug Description",
-                L"Debug DeviceId",
-                winrt::clock::now(),
-            });
-    }
     IsVisible(true);
 #endif
 }
@@ -130,7 +114,8 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
         break;
     case WM_COMMAND:
     {
-        switch (LOWORD(wparam))
+        auto command = LOWORD(wparam);
+        switch (command)
         {
         case ID_EDIT_COPY:
         case ID_COPY_CMD:
@@ -152,10 +137,7 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
             PostQuitMessage(0);
             break;
         case ID_EDIT_CLEAR:
-        {
-            m_pnpEvents.Clear();
-            ListView_DeleteAllItems(m_pnpEventsListView);
-        }
+            ClearEventList();
             break;
         case ID_TOOLS_EXPORTTOCSV:
             ExportToCsvAsync();
@@ -163,6 +145,29 @@ LRESULT MainWindow::MessageHandler(UINT const message, WPARAM const wparam, LPAR
         case ID_HELP_ABOUT:
             ShowAbout();
             break;
+#ifdef _DEBUG
+        case ID_DEBUG_ADDDEBUGEVENT:
+        {
+            std::wstringstream stream;
+            stream << L"Debug Name (" << m_debugEventCounter++ << L")";
+            auto name = stream.str();
+            OnPnPEventAdded(
+                {
+                    PnPEventType::Added,
+                    name,
+                    L"Debug Description",
+                    L"Debug DeviceId",
+                    winrt::clock::now(),
+                });
+        }
+            break;
+        case ID_DEBUG_RESIZEEVENTLIST:
+        {
+            ClearEventList();
+            m_pnpEvents = RingList<PnPEvent>(10);
+        }
+        break;
+#endif
         }
     }
         break;
@@ -201,6 +206,18 @@ void MainWindow::CreateListViewItemMenu()
         { L"Copy Timestamp", ListViewItemMenuItem::CopyTimestamp },
     };
     m_eventItemMenu = std::make_unique<SyncPopupMenu<ListViewItemMenuItem>>(items);
+}
+
+void MainWindow::CreateMainWindowMenu(HINSTANCE instance)
+{
+    m_mainMenu.reset(winrt::check_pointer(LoadMenuW(instance, MAKEINTRESOURCEW(IDR_MAIN_WINDOW_MENU))));
+#ifdef _DEBUG
+    m_debugMenu.reset(winrt::check_pointer(CreatePopupMenu()));
+    winrt::check_bool(AppendMenuW(m_mainMenu.get(), MF_POPUP, reinterpret_cast<UINT_PTR>(m_debugMenu.get()), L"Debug"));
+    winrt::check_bool(AppendMenuW(m_debugMenu.get(), MF_STRING, ID_DEBUG_ADDDEBUGEVENT, L"Add debug event"));
+    winrt::check_bool(AppendMenuW(m_debugMenu.get(), MF_STRING, ID_DEBUG_RESIZEEVENTLIST, L"Resize event list to 10"));
+#endif
+    winrt::check_bool(SetMenu(m_window, m_mainMenu.get()));
 }
 
 void MainWindow::OnOpenMenuItemClicked()
@@ -452,4 +469,10 @@ winrt::IAsyncAction MainWindow::ExportToCsvAsync()
         co_await m_dispatcherQueue;
         MessageBoxW(m_window, L"Export completed!", L"PnPWatcher", MB_OK | MB_APPLMODAL);
     }
+}
+
+void MainWindow::ClearEventList()
+{
+    m_pnpEvents.Clear();
+    ListView_DeleteAllItems(m_pnpEventsListView);
 }
